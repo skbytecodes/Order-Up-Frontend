@@ -11,7 +11,7 @@ function Restaurant({ image, title, type, rating, time, price }) {
         <p className="font-semibold">{title}</p>
         <p className="text-xs text-gray-500">{type}</p>
       </div>
-      <div className=" flex items-center justify-between mt-5 text-xs border border-x-0 border-t-0 border-b pb-3">
+      <div className=" flex items-center justify-between mt-5 text-xs">
         <div
           className="p-1 flex items-center space-x-1 text-white"
           style={{ backgroundColor: "#48c479" }}
@@ -26,10 +26,6 @@ function Restaurant({ image, title, type, rating, time, price }) {
         <div>
           <p>&#8377; {price}</p>
         </div>
-      </div>
-
-      <div className="mt-1 font-semibold text-center">
-        <p className="hover:text-red-800" style={{ fontSize: "12px", color: "#5d8ed5" }}>QUICK VIEW</p>
       </div>
     </div>
   );

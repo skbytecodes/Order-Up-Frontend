@@ -1,16 +1,18 @@
 import "./App.css";
-import BannerSection from "./components/BannerSection";
-import Header from "./components/Header";
-import Restaurants from "./components/Restaurants";
-import RestaurantsHeader from "./components/RestaurantsHeader";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Home from "./components/Home";
+import ParentRestaurant from "./components/ParentRestaurant";
+
 function App() {
   return (
-    <div className="App">
-      <Header />
-      <BannerSection />
-      <RestaurantsHeader />
-      <Restaurants />
-    </div>
+    <Router>
+      <div className="App">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/restaurants" element={<ParentRestaurant />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
