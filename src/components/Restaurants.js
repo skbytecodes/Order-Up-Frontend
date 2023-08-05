@@ -1,59 +1,34 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Restaurant from "./Restaurant";
-import AnnaDosa from "../images/anna-ka-dosa.webp";
-import BoomSandwich from "../images/boom-sandwich.webp";
-import Burgrill from "../images/burgrill.webp";
-import DesiMeals from "../images/desi-meals.webp";
-import Delhi19 from "../images/dilli-19.jpeg";
-import Dominos from "../images/dominos.webp";
-import GloboIce from "../images/globo-icecream.webp";
-import GoodFlippinBurger from "../images/good-flippin-burger.webp";
-import HighwayToNorth from "../images/highway-to-north.webp";
-import Kfc from "../images/kfc.jpeg";
-import Mcdonalds from "../images/mcdonalds.webp";
-import MozoPizza from "../images/mozo-pizza.webp";
+import axios from "axios";
 
 function Restaurants() {
+  const [restaurants, setRestaurants] = useState([]);
+  const parentUrl = window.globalPrentUrl;
+  const publicImagePath = window.publicImagePath;
+  console.log("global is ", parentUrl);
+  useEffect(() => {
+    async function fetchRestaurants() {
+      const response = await axios.get(`${parentUrl}/api/v1/restaurants`);
+      console.log("response ", response);
+      setRestaurants(response.data);
+    }
+    fetchRestaurants();
+  }, [restaurants]);
+
   return (
-    <div className="flex justify-around max-h-fit">
-      <Restaurant
-        id={101}
-        image={Kfc}
-        title="Kfc"
-        type="Burgers, Biryani, American, Snacks, Fast Food"
-        rating={4.1}
-        time={43}
-        price={250}
-      />
-
-      <Restaurant
-        id={102}
-        image={MozoPizza}
-        title="MozoPizza"
-        type="Pizzas"
-        rating={4.1}
-        time={43}
-        price={250}
-      />
-
-      <Restaurant
-        id={103}
-        image={DesiMeals}
-        title="Mealy-Your Everyday Meal"
-        type="North Indian, Street Food, Beverages, Desserts, Home Food"
-        rating={4.1}
-        time={43}
-        price={250}
-      />
-      <Restaurant
-        id={104}
-        image={AnnaDosa}
-        title="Anna Ka Dosa"
-        type="South Indian, Indian"
-        rating={4.1}
-        time={43}
-        price={250}
-      />
+    <div className="flex justify-around pt-7 max-h-fit">
+      {restaurants.map((item) => (
+        <Restaurant
+          id={item.restaurantId}
+          image={`${publicImagePath}${item.imageName}`}
+          title={item.restaurantName}
+          type={item.restaurantType}
+          rating={4.1}
+          time={43}
+          price={250}
+        />
+      ))}
     </div>
   );
 }

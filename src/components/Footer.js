@@ -7,7 +7,7 @@ function Footer() {
   return (
     <div className="">
       <div className="bg-gray-200 h-28 flex items-center justify-around">
-        <div className="text-2xl font-bold max-w-sm">
+        <div className="text-2xl font-bold max-w-sm text-gray-700">
           For better experience,download the Swiggy app now
         </div>
         <div className="flex">

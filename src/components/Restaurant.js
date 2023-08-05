@@ -2,8 +2,10 @@ import { StarIcon } from "@heroicons/react/outline";
 import React from "react";
 
 function Restaurant({ image, title, type, rating, time, price }) {
+  console.log("image is ", image);
+
   return (
-    <div className="p-5 max-h-fit mb-10  hover:shadow-xl hover:outline outline-1 outline-gray-300 cursor-pointer">
+    <div className="p-5 max-h-full mb-10 hover:shadow-xl hover:outline outline-1 outline-gray-300 cursor-pointer ">
       <div className="flex justify-center">
         <img className="h-40 w-64" src={image} />
       </div>
@@ -11,7 +13,7 @@ function Restaurant({ image, title, type, rating, time, price }) {
         <p className="font-semibold">{title}</p>
         <p className="text-xs text-gray-500">{type}</p>
       </div>
-      <div className=" flex items-center justify-between mt-5 text-xs">
+      <div className="flex items-center justify-between mt-5 text-xs border border-x-0 border-t-0 pb-3">
         <div
           className="p-1 flex items-center space-x-1 text-white"
           style={{ backgroundColor: "#48c479" }}
@@ -27,6 +29,9 @@ function Restaurant({ image, title, type, rating, time, price }) {
           <p>&#8377; {price}</p>
         </div>
       </div>
+      {/* <div className="text-center mt-4">
+        <p className="text-gray-500 font-semibold text-sm">QUICK VIEW</p>
+      </div> */}
     </div>
   );
 }

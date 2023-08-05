@@ -4,6 +4,8 @@ import Home from "./components/Home";
 import ParentRestaurant from "./components/ParentRestaurant";
 
 function App() {
+  window.globalPrentUrl = "http://localhost:8080";
+  window.publicImagePath = "/images/";
   return (
     <Router>
       <div className="App">
