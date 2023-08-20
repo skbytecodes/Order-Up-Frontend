@@ -1,20 +1,16 @@
 import React from "react";
-import Header from "./Header";
-import BannerSection from "./BannerSection";
-import Restaurants from "./Restaurants";
-import Footer from "./Footer";
-import RestaurantsHeader from "./RestaurantsHeader";
-import LoginPage from "./LoginPage";
 import { useSelector } from "react-redux";
+import HelpPartnerOnboarding from "./HelpPartnerOnboarding";
+import LoginPage from "./LoginPage";
 
-export default function () {
+function HelpPartnerOnboardingContainer() {
   const showAuthPage = useSelector((state) => state.showAuthPage);
-
   return (
-    <>
+    <div>
       {showAuthPage ? (
         <div>
-          <div style={{
+          <div
+            style={{
               position: "fixed",
               top: 0,
               left: 0,
@@ -22,9 +18,8 @@ export default function () {
               height: "100%",
               backgroundColor: "rgba(0, 0, 0, 0.40)",
               zIndex: 10,
-            }}>
-
-          </div>
+            }}
+          ></div>
           <LoginPage isOpen={1} />
           <div
             style={{
@@ -36,22 +31,16 @@ export default function () {
               zIndex: 0,
             }}
           >
-            <Header />
-            <BannerSection />
-            <RestaurantsHeader />
-            <Restaurants />
-            <Footer />
+            <HelpPartnerOnboarding />
           </div>
         </div>
-      ):(
+      ) : (
         <div>
-          <Header />
-          <BannerSection />
-          <RestaurantsHeader />
-          <Restaurants />
-          <Footer />
+          <HelpPartnerOnboarding />
         </div>
       )}
-    </>
+    </div>
   );
 }
+
+export default HelpPartnerOnboardingContainer;

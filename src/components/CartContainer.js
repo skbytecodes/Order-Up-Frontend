@@ -1,20 +1,18 @@
 import React from "react";
+import Cart from "./Cart";
 import Header from "./Header";
-import BannerSection from "./BannerSection";
-import Restaurants from "./Restaurants";
-import Footer from "./Footer";
-import RestaurantsHeader from "./RestaurantsHeader";
 import LoginPage from "./LoginPage";
+import { showAuthPage } from "./actions/swiggyActions";
 import { useSelector } from "react-redux";
 
-export default function () {
+function CartContainer() {
   const showAuthPage = useSelector((state) => state.showAuthPage);
-
   return (
-    <>
+    <div>
       {showAuthPage ? (
         <div>
-          <div style={{
+          <div
+            style={{
               position: "fixed",
               top: 0,
               left: 0,
@@ -22,9 +20,8 @@ export default function () {
               height: "100%",
               backgroundColor: "rgba(0, 0, 0, 0.40)",
               zIndex: 10,
-            }}>
-
-          </div>
+            }}
+          ></div>
           <LoginPage isOpen={1} />
           <div
             style={{
@@ -37,21 +34,17 @@ export default function () {
             }}
           >
             <Header />
-            <BannerSection />
-            <RestaurantsHeader />
-            <Restaurants />
-            <Footer />
+            <Cart />
           </div>
         </div>
-      ):(
+      ) : (
         <div>
           <Header />
-          <BannerSection />
-          <RestaurantsHeader />
-          <Restaurants />
-          <Footer />
+          <Cart />
         </div>
       )}
-    </>
+    </div>
   );
 }
+
+export default CartContainer;
