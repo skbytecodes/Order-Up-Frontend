@@ -12,6 +12,9 @@
   cursor: pointer;
 }
 
+/* #cart_items_scroll::-webkit-scrollbar {
+  display: none;
+} */
 
 
 

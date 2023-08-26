@@ -16,6 +16,7 @@ import LoginPage from "./components/LoginPage";
 import SearchContainer from "./components/SearchContainer";
 import HelpLegalContainer from "./components/HelpLegalContainer";
 import CartContainer from "./components/CartContainer";
+import Offers from "./components/Offers";
 
 function App() {
   window.globalPrentUrl = "http://localhost:8090";
@@ -27,6 +28,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/restaurants" element={<ParentRestaurant />} />
           <Route path="/search" element={<SearchContainer />} />
+          <Route path="/offers" element={<Offers />} />
           <Route path="/cart" element={<CartContainer />} />
           <Route path="/help" element={<HelpPartnerOnboardingContainer/>} />
           <Route path="/help/issues/partner-onboarding" element={<HelpPartnerOnboardingContainer /> }/>

@@ -63,7 +63,7 @@ const handleSigninBtn = () => {
           </div>
         </Link>
         <Link
-          to=""
+          to="/offers"
           onClick={() => {
             setActiveLink("Offers");
           }}
