@@ -149,10 +149,16 @@ function Cart() {
           </div>
         </div> */}
 
+
+
+        {/* cart items */}
+
         <div
-          className="bg-white shadow-md space-y-5"
+          className="space-y-5"
           style={{ width: "28vw", height: "fit-content" }}
         >
+          <div  className="bg-white shadow-md space-y-5">
+         
           <div className="flex items-center h-20 px-5 space-x-3 shadow-md">
             <img
               src={Cake}
@@ -464,15 +470,25 @@ function Cart() {
           </div>
 
           <div
-            className="flex items-center h-14 px-5 justify-between shadow-md font-bold text-gray-800"
+            className="flex items-center h-14 px-5 justify-between font-bold text-gray-800"
             style={{
               fontSize: "14px",
-              boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
+              boxShadow: "0px -3px 6px rgba(0, 0, 0, 0.16), 0px 0px 0px rgba(0, 0, 0, 0.23)",
             }}
           >
             <p className="">TO PAY</p>
             <div className="flex">
               &#8377;<p>89</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-4 shadow-md border border-gray-100">
+            <div className=" p-4 space-y-2" style={{fontSize:"12px"}}>
+              <p className="font-bold  text-gray-900" style={{fontSize:"14px"}}>Review your order and address details to avoid cancellations</p>
+              <p className="text-gray-800"><span className="text-red-500">Note:</span> If you cancel within 60 seconds of placing your order, a 100% refund will be issued. No refund for cancellations made after 60 seconds.</p>
+              <p className="text-gray-800">Avoid cancellation as it leads to food wastage.</p>
+              <p className="font-semibold border-dotted border-b-gray-100 " style={{fontSize:"13px"}}>Read cancellation policy</p>
             </div>
           </div>
         </div>

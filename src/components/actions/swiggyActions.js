@@ -33,9 +33,24 @@ export const logout = () => {
   };
 };
 
-export const addtocart = (payload) => {
+export const selectedItem = (payload) => {
   return {
-    type: "cart",
-    payload,
-  };
-};
+    type : "SELECTED_ITEM",
+    payload
+  }
+}
+
+export const addItem = (payload) => {
+  return {
+    type : "ADD_TO_CART",
+    payload
+  }
+}
+
+
+export const removeItem = (payload) => {
+  return {
+    type : "REMOVE_ITEM_FROM_CART",
+    payload
+  }
+}

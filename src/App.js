@@ -17,6 +17,8 @@ import SearchContainer from "./components/SearchContainer";
 import HelpLegalContainer from "./components/HelpLegalContainer";
 import CartContainer from "./components/CartContainer";
 import Offers from "./components/Offers";
+import RestaurantItems from "./components/RestaurantItems";
+import RestaurantItemsContainer from "./components/RestaurantItemsContainer";
 
 function App() {
   window.globalPrentUrl = "http://localhost:8090";
@@ -34,6 +36,7 @@ function App() {
           <Route path="/help/issues/partner-onboarding" element={<HelpPartnerOnboardingContainer /> }/>
           <Route path="/help/issues/legal" element={<HelpLegalContainer /> }/>
           <Route path="/help/issues/FAQ" element={<HelpPartnerOnboardingContainer /> }/>
+          <Route path="/restaurants/food"  element={<RestaurantItemsContainer />}/>
         </Routes>
       </div>
     </Router>
