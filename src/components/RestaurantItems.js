@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import { addItem, removeItem } from "./actions/swiggyActions";
+import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
 
 function RestaurantItems() {
   const [items, setItems] = useState([]);
@@ -242,6 +243,22 @@ function RestaurantItems() {
               Delhi, DEFENCE COLONY, South East, Delhi-110065
             </p>
           </div>
+        </div>
+      </div>
+      <div
+        className="h-10 m-auto sticky bottom-1 flex items-center justify-between px-3 font-bold hover:cursor-pointer"
+        style={{
+          height: "8vh",
+          width: "76%",
+          fontSize: "15px",
+          marginLeft: "161px",
+          backgroundColor: "#60b246",
+          color: "white",
+        }}
+      >
+        <div>3 items | &#8377;89</div>
+        <div className="flex items-center justify-center space-x-1">
+          <p className="mt-1 ">VIEW CART</p> <ShoppingBagOutlinedIcon />
         </div>
       </div>
     </div>
