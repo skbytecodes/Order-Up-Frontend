@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import EmptyCart from "../images/emptyCart.jpg";
 import EmptyCartPNG from "../images/emptyCartPNG.png";
 import Roll from "../images/roll.webp";
@@ -11,25 +11,92 @@ import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
+import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
+import { menuItemClasses } from "@mui/material";
+import { addItem, cartTotalValue, removeItem } from "./actions/swiggyActions";
 
 function Cart() {
+  const [items, setItems] = useState([]);
+  const parentUrl = window.globalPrentUrl;
+  const publicImagePath = window.publicImagePath;
+
+  const dispatch = useDispatch();
+  const selectedRestaurant = useSelector((state) => state.selectedItem);
+  const itemsInCart = useSelector((state) => state.cartItems.items);
+  console.log("item changes ", itemsInCart);
+  const [itemsInCartState, setItemsInCartState] = useState(itemsInCart);
+  let itemsTotalAmount = useSelector((state) => state.totalItemsAmount);
+  const [restaurant, setRestaurant] = useState({});
+  console.log("items in cart state ", itemsInCartState);
+  let arr = [];
+
+  useEffect(() => {
+    async function fetchData() {
+      const restaurantResponse = await axios.get(
+        `${parentUrl}/api/v1/restaurant/${selectedRestaurant}`
+      );
+      setRestaurant(restaurantResponse.data);
+
+      const promises = itemsInCartState.map(async (item) => {
+        const response = await axios.get(
+          `${parentUrl}/api/v1/foodById/${item.foodId}`
+        );
+        console.log("response data promise " + response.data);
+        return response.data;
+      });
+      arr = await Promise.all(promises);
+      setItems(arr);
+    }
+    fetchData();
+  }, [items]);
+
+  const pushItem = async (item) => {
+    debugger
+    dispatch(addItem({ foodId: item.foodId, count: 1 }));
+    const response = await axios.get(
+      `${parentUrl}/api/v1/foodById/${item.foodId}`
+    );
+    itemsTotalAmount = itemsTotalAmount + response.data.foodPrice;
+    dispatch(cartTotalValue(itemsTotalAmount));
+  };
+
+  const pullItem = async (item) => {
+    dispatch(removeItem({ foodId: item.foodId }));
+    const response = await axios.get(
+      `${parentUrl}/api/v1/foodById/${item.foodId}`
+    );
+    itemsTotalAmount = itemsTotalAmount - response.data.foodPrice;
+    if (itemsTotalAmount <= 0) {
+      dispatch(cartTotalValue(0));
+    } else {
+      dispatch(cartTotalValue(itemsTotalAmount));
+    }
+  };
+
   return (
     <>
-      <div
-        className="flex items-center justify-center"
-        style={{ height: "87vh" }}
-      >
-        <div className="flex flex-col items-center">
-          <img src={EmptyCart} className="h-64" />
-          <p className="font-semibold mt-5 mb-1 text-lg">Your cart is empty</p>
-          <p className="text-sm text-gray-600 mb-5">
-            You can go to home page to view more restaurants
-          </p>
-          <p className="bg-orange-500 w-fit py-2 px-5 font-semibold text-white">
-            SEE RESTAURANTS NEAR YOU
-          </p>
+      {itemsInCartState.length <= 0 ? (
+        <div
+          className="flex items-center justify-center"
+          style={{ height: "87vh" }}
+        >
+          <div className="flex flex-col items-center">
+            <img src={EmptyCart} className="h-64" />
+            <p className="font-semibold mt-5 mb-1 text-lg">
+              Your cart is empty
+            </p>
+            <p className="text-sm text-gray-600 mb-5">
+              You can go to home page to view more restaurants
+            </p>
+            <p className="bg-orange-500 w-fit py-2 px-5 font-semibold text-white">
+              SEE RESTAURANTS NEAR YOU
+            </p>
+          </div>
         </div>
-      </div>
+      ) : (
+        ""
+      )}
 
       {/* secondsection */}
 
@@ -133,365 +200,210 @@ function Cart() {
 
         {/* cart section */}
 
-        {/* <div className="" style={{ height: "100vh", width: "28vw" }}>
-          <div className=" flex flex-col justify-center items-center">
-            <div className="" style={{ width: "100%", paddingLeft: "75px" }}>
-              <p className="text-3xl font-bold text-gray-400 mb-5 ml-0">
-                Cart Empty
-              </p>
-            </div>
+        {itemsInCartState.length <= 0 ? (
+          <div className="" style={{ height: "100vh", width: "28vw" }}>
+            <div className=" flex flex-col justify-center items-center">
+              <div className="" style={{ width: "100%", paddingLeft: "75px" }}>
+                <p className="text-3xl font-bold text-gray-400 mb-5 ml-0">
+                  Cart Empty
+                </p>
+              </div>
 
-            <img src={EmptyCartPNG} className="h-64 w-64 mb-2" />
-            <p className="  text-sm text-gray-400" style={{ width: "60%" }}>
-              Good food is always cooking! Go ahead, order some yummy items from
-              the menu.
-            </p>
-          </div>
-        </div> */}
-
-
-
-        {/* cart items */}
-
-        <div
-          className="space-y-5"
-          style={{ width: "28vw", height: "fit-content" }}
-        >
-          <div  className="bg-white shadow-md space-y-5">
-         
-          <div className="flex items-center h-20 px-5 space-x-3 shadow-md">
-            <img
-              src={Cake}
-              className=""
-              style={{ height: "47px", width: "50px" }}
-            />
-            <div className="">
-              <p className="font-semibold text-gray-700">Bakingo</p>
-              <p className="text-gray-600" style={{ fontSize: "12px" }}>
-                Shahpur Jat
+              <img src={EmptyCartPNG} className="h-64 w-64 mb-2" />
+              <p className="  text-sm text-gray-400" style={{ width: "60%" }}>
+                Good food is always cooking! Go ahead, order some yummy items
+                from the menu.
               </p>
             </div>
           </div>
-
-          {/* scroll */}
+        ) : (
           <div
-            className="overflow-y-scroll space-y-6"
-            style={{ height: "60vh" }}
+            className="space-y-5"
+            style={{ width: "28vw", height: "fit-content" }}
           >
-            <div className="flex items-center px-5 justify-between">
-              <div className="flex justify-between" style={{ width: "38%" }}>
-                <RadioButtonCheckedIcon
-                  sx={{
-                    color: "green",
-                    height: "13px",
-                    width: "12px",
-                    textAlign: "start",
-                    marginTop: "2px",
-                  }}
+            <div className="bg-white shadow-md space-y-5">
+              <div className="flex items-center h-20 px-5 space-x-3 shadow-md">
+                <img
+                  src={Cake}
+                  className=""
+                  style={{ height: "47px", width: "50px" }}
                 />
-                <div className="flex flex-col justify-start pt-0 ">
-                  <p
-                    className="font-semibold text-gray-700"
-                    style={{ fontSize: "12px" }}
-                  >
-                    Black Forest Pastry
+                <div className="">
+                  <p className="font-semibold text-gray-700">
+                    {restaurant.restaurantName}
                   </p>
-                  <div className="flex items-center">
-                    <p
-                      className="font-semibold text-gray-500"
-                      style={{ fontSize: "11px" }}
-                    >
-                      Customize
-                    </p>
-                    <ArrowForwardIosIcon
-                      sx={{ color: "orange", height: "8px" }}
-                    />
-                  </div>
+                  <p className="text-gray-600" style={{ fontSize: "12px" }}>
+                    {restaurant.restaurantAddress}
+                  </p>
                 </div>
               </div>
-              <div className=" flex items-center justify-around w-20 border border-gray-300 py-1">
-                <RemoveIcon sx={{ color: "gray", fontSize: "14px" }} />
-                <p
-                  className="text-gray-500"
-                  style={{ fontSize: "12px", color: "green" }}
-                >
-                  1
-                </p>
-                <AddIcon sx={{ color: "green", fontSize: "14px" }} />
-              </div>
 
-              <div className=" text-gray-500 flex" style={{ fontSize: "12px" }}>
-                &#8377;<p>89</p>
-              </div>
-            </div>
-
-            <div className="flex items-center px-5 justify-between">
-              <div className="flex justify-between" style={{ width: "38%" }}>
-                <RadioButtonCheckedIcon
-                  sx={{
-                    color: "green",
-                    height: "13px",
-                    width: "12px",
-                    textAlign: "start",
-                    marginTop: "2px",
-                  }}
-                />
-                <div className="flex flex-col justify-start pt-0 ">
-                  <p
-                    className="font-semibold text-gray-700"
-                    style={{ fontSize: "12px" }}
-                  >
-                    Black Forest Pastry
-                  </p>
-                  <div className="flex items-center">
-                    <p
-                      className="font-semibold text-gray-500"
-                      style={{ fontSize: "11px" }}
-                    >
-                      Customize
-                    </p>
-                    <ArrowForwardIosIcon
-                      sx={{ color: "orange", height: "8px" }}
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className=" flex items-center justify-around w-20 border border-gray-300 py-1">
-                <RemoveIcon sx={{ color: "gray", fontSize: "14px" }} />
-                <p
-                  className="text-gray-500"
-                  style={{ fontSize: "12px", color: "green" }}
-                >
-                  1
-                </p>
-                <AddIcon sx={{ color: "green", fontSize: "14px" }} />
-              </div>
-
-              <div className=" text-gray-500 flex" style={{ fontSize: "12px" }}>
-                &#8377;<p>89</p>
-              </div>
-            </div>
-
-            <div className="flex items-center px-5 justify-between">
-              <div className="flex justify-between" style={{ width: "38%" }}>
-                <RadioButtonCheckedIcon
-                  sx={{
-                    color: "green",
-                    height: "13px",
-                    width: "12px",
-                    textAlign: "start",
-                    marginTop: "2px",
-                  }}
-                />
-                <div className="flex flex-col justify-start pt-0 ">
-                  <p
-                    className="font-semibold text-gray-700"
-                    style={{ fontSize: "12px" }}
-                  >
-                    Black Forest Pastry
-                  </p>
-                  <div className="flex items-center">
-                    <p
-                      className="font-semibold text-gray-500"
-                      style={{ fontSize: "11px" }}
-                    >
-                      Customize
-                    </p>
-                    <ArrowForwardIosIcon
-                      sx={{ color: "orange", height: "8px" }}
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className=" flex items-center justify-around w-20 border border-gray-300 py-1">
-                <RemoveIcon sx={{ color: "gray", fontSize: "14px" }} />
-                <p
-                  className="text-gray-500"
-                  style={{ fontSize: "12px", color: "green" }}
-                >
-                  1
-                </p>
-                <AddIcon sx={{ color: "green", fontSize: "14px" }} />
-              </div>
-
-              <div className=" text-gray-500 flex" style={{ fontSize: "12px" }}>
-                &#8377;<p>89</p>
-              </div>
-            </div>
-
-            <div className="flex items-center px-5 justify-between">
-              <div className="flex justify-between" style={{ width: "38%" }}>
-                <RadioButtonCheckedIcon
-                  sx={{
-                    color: "green",
-                    height: "13px",
-                    width: "12px",
-                    textAlign: "start",
-                    marginTop: "2px",
-                  }}
-                />
-                <div className="flex flex-col justify-start pt-0 ">
-                  <p
-                    className="font-semibold text-gray-700"
-                    style={{ fontSize: "12px" }}
-                  >
-                    Black Forest Pastry
-                  </p>
-                  <div className="flex items-center">
-                    <p
-                      className="font-semibold text-gray-500"
-                      style={{ fontSize: "11px" }}
-                    >
-                      Customize
-                    </p>
-                    <ArrowForwardIosIcon
-                      sx={{ color: "orange", height: "8px" }}
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className=" flex items-center justify-around w-20 border border-gray-300 py-1">
-                <RemoveIcon sx={{ color: "gray", fontSize: "14px" }} />
-                <p
-                  className="text-gray-500"
-                  style={{ fontSize: "12px", color: "green" }}
-                >
-                  1
-                </p>
-                <AddIcon sx={{ color: "green", fontSize: "14px" }} />
-              </div>
-
-              <div className=" text-gray-500 flex" style={{ fontSize: "12px" }}>
-                &#8377;<p>89</p>
-              </div>
-            </div>
-
-            <div className="flex items-center px-5 justify-between">
-              <div className="flex justify-between" style={{ width: "38%" }}>
-                <RadioButtonCheckedIcon
-                  sx={{
-                    color: "green",
-                    height: "13px",
-                    width: "12px",
-                    textAlign: "start",
-                    marginTop: "2px",
-                  }}
-                />
-                <div className="flex flex-col justify-start pt-0 ">
-                  <p
-                    className="font-semibold text-gray-700"
-                    style={{ fontSize: "12px" }}
-                  >
-                    Black Forest Pastry
-                  </p>
-                  <div className="flex items-center">
-                    <p
-                      className="font-semibold text-gray-500"
-                      style={{ fontSize: "11px" }}
-                    >
-                      Customize
-                    </p>
-                    <ArrowForwardIosIcon
-                      sx={{ color: "orange", height: "8px" }}
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className=" flex items-center justify-around w-20 border border-gray-300 py-1">
-                <RemoveIcon sx={{ color: "gray", fontSize: "14px" }} />
-                <p
-                  className="text-gray-500"
-                  style={{ fontSize: "12px", color: "green" }}
-                >
-                  1
-                </p>
-                <AddIcon sx={{ color: "green", fontSize: "14px" }} />
-              </div>
-
-              <div className=" text-gray-500 flex" style={{ fontSize: "12px" }}>
-                &#8377;<p>89</p>
-              </div>
-            </div>
-            <div className="space-y-4 px-5">
-              <div className=" bg-gray-50 py-3 pl-4" style={{ fontSize: "12px" , borderRadius:"5px"}}>
-                &ldquo;
-                <input
-                className="h-7 bg-transparent ml-2"
-                  type="text"
-                  placeholder="Any suggestions? We will pass it on..."
-                  style={{ width: "90%", outline: "none" }}
-                />
-              </div>
-            </div>
-
-            {/* Bills */}
-
-            <div
-              className="space-y-4 text-gray-600"
-              style={{ fontSize: "12px" }}
-            >
-              <p
-                className="font-semibold text-gray-800 px-5"
-                style={{ fontSize: "12px" }}
+              {/* scroll */}
+              <div
+                className="overflow-y-scroll space-y-6"
+                style={{ height: "60vh" }}
               >
-                Bill Details
-              </p>
-              <div className="flex items-center justify-between px-5">
-                <p>Item Total</p>
-                <div className="flex">
-                  &#8377;<p>89</p>
-                </div>
-              </div>
-              <div className="flex items-center justify-between px-5">
-                <p>Delivery Fee | 5.8 kms</p>
-                <div className="flex">
-                  &#8377;<p>89</p>
-                </div>
-              </div>
-              <div className=" flex items-center justify-between px-5">
-                <p>Delivery Tip</p>
-                <div className="flex">
-                  &#8377;<p>89</p>
-                </div>
-              </div>
-              <div className="flex items-center justify-between px-5">
-                <p>Platform fee</p>
-                <div className="flex">
-                  &#8377;<p>89</p>
-                </div>
-              </div>
-              <div className="flex items-center justify-between px-5">
-                <p>GST and Restaurant Charges</p>
-                <div className=" flex">
-                  &#8377;<p>89</p>
-                </div>
-              </div>
-            </div>
-          </div>
+                {items.map((item) => (
+                  <div className="flex items-center px-5 justify-between ">
+                    <div
+                      className="flex justify-start "
+                      style={{ width: "40%" }}
+                    >
+                      <RadioButtonCheckedIcon
+                        sx={{
+                          color: "green",
+                          height: "13px",
+                          width: "12px",
+                          textAlign: "start",
+                          marginTop: "2px",
+                        }}
+                      />
+                      <div className="flex flex-col justify-start pt-0 pl-1">
+                        <p
+                          className="font-semibold text-gray-700"
+                          style={{ fontSize: "12px" }}
+                        >
+                          {item.foodName}
+                        </p>
+                        <div className="flex items-center">
+                          <p
+                            className="font-semibold text-gray-500"
+                            style={{ fontSize: "11px" }}
+                          >
+                            Customize
+                          </p>
+                          <ArrowForwardIosIcon
+                            sx={{ color: "orange", height: "8px" }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div className=" flex items-center justify-around w-20 border border-gray-300 py-1">
+                      <RemoveIcon
+                        onClick={() => {
+                          pullItem(item);
+                        }}
+                        sx={{ color: "gray", fontSize: "14px" }}
+                      />
+                      <p
+                        className="text-gray-500"
+                        style={{ fontSize: "12px", color: "green" }}
+                      >
+                        {itemsInCartState.findIndex(
+                          (foo) => foo.foodId === item.foodId
+                        ) !== -1 ? (
+                          <p id={item.foodId}>
+                            {itemsInCartState
+                              .find((foo) => foo.foodId === item.foodId)
+                              .count.toString()}
+                          </p>
+                        ) : (
+                          <p id={item.food_id}>0</p>
+                        )}
+                      </p>
+                      <AddIcon
+                        onClick={() => {
+                          pushItem(item);
+                        }}
+                        sx={{ color: "green", fontSize: "14px" }}
+                      />
+                    </div>
 
-          <div
-            className="flex items-center h-14 px-5 justify-between font-bold text-gray-800"
-            style={{
-              fontSize: "14px",
-              boxShadow: "0px -3px 6px rgba(0, 0, 0, 0.16), 0px 0px 0px rgba(0, 0, 0, 0.23)",
-            }}
-          >
-            <p className="">TO PAY</p>
-            <div className="flex">
-              &#8377;<p>89</p>
-            </div>
-          </div>
-        </div>
+                    <div
+                      className=" text-gray-500 flex"
+                      style={{ fontSize: "12px" }}
+                    >
+                      &#8377;<p>{item.foodPrice}</p>
+                    </div>
+                  </div>
+                ))}
 
-        <div className="bg-white p-4 shadow-md border border-gray-100">
-            <div className=" p-4 space-y-2" style={{fontSize:"12px"}}>
-              <p className="font-bold  text-gray-900" style={{fontSize:"14px"}}>Review your order and address details to avoid cancellations</p>
-              <p className="text-gray-800"><span className="text-red-500">Note:</span> If you cancel within 60 seconds of placing your order, a 100% refund will be issued. No refund for cancellations made after 60 seconds.</p>
-              <p className="text-gray-800">Avoid cancellation as it leads to food wastage.</p>
-              <p className="font-semibold border-dotted border-b-gray-100 " style={{fontSize:"13px"}}>Read cancellation policy</p>
+                {/* Bills */}
+
+                <div
+                  className="space-y-4 text-gray-600"
+                  style={{ fontSize: "12px" }}
+                >
+                  <p
+                    className="font-semibold text-gray-800 px-5"
+                    style={{ fontSize: "12px" }}
+                  >
+                    Bill Details
+                  </p>
+                  <div className="flex items-center justify-between px-5">
+                    <p>Item Total</p>
+                    <div className="flex">
+                      &#8377;<p>89</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between px-5">
+                    <p>Delivery Fee | 5.8 kms</p>
+                    <div className="flex">
+                      &#8377;<p>89</p>
+                    </div>
+                  </div>
+                  <div className=" flex items-center justify-between px-5">
+                    <p>Delivery Tip</p>
+                    <div className="flex">
+                      &#8377;<p>89</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between px-5">
+                    <p>Platform fee</p>
+                    <div className="flex">
+                      &#8377;<p>89</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between px-5">
+                    <p>GST and Restaurant Charges</p>
+                    <div className=" flex">
+                      &#8377;<p>89</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                className="flex items-center h-14 px-5 justify-between font-bold text-gray-800"
+                style={{
+                  fontSize: "14px",
+                  boxShadow:
+                    "0px -3px 6px rgba(0, 0, 0, 0.16), 0px 0px 0px rgba(0, 0, 0, 0.23)",
+                }}
+              >
+                <p className="">TO PAY</p>
+                <div className="flex">
+                  &#8377;<p>{itemsTotalAmount.toFixed(2)}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white p-4 shadow-md border border-gray-100">
+              <div className=" p-4 space-y-2" style={{ fontSize: "12px" }}>
+                <p
+                  className="font-bold  text-gray-900"
+                  style={{ fontSize: "14px" }}
+                >
+                  Review your order and address details to avoid cancellations
+                </p>
+                <p className="text-gray-800">
+                  <span className="text-red-500">Note:</span> If you cancel
+                  within 60 seconds of placing your order, a 100% refund will be
+                  issued. No refund for cancellations made after 60 seconds.
+                </p>
+                <p className="text-gray-800">
+                  Avoid cancellation as it leads to food wastage.
+                </p>
+                <p
+                  className="font-semibold border-dotted border-b-gray-100 "
+                  style={{ fontSize: "13px" }}
+                >
+                  Read cancellation policy
+                </p>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </>
   );

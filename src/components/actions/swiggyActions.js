@@ -54,3 +54,11 @@ export const removeItem = (payload) => {
     payload
   }
 }
+
+
+export const cartTotalValue = (payload) => {
+  return {
+    type : "CART_TOTAL_VALUE",
+    payload
+  }
+}

@@ -19,7 +19,7 @@ export const cartReducer = (state = { items: [] }, action) => {
           items: [...state.items, action.payload],
         };
       } else {
-        state.items[existingItemIndex].count += 1;
+        state.items[existingItemIndex].count += action.payload.count;
         return {
           ...state,
           items: [...state.items],
@@ -45,3 +45,16 @@ export const cartReducer = (state = { items: [] }, action) => {
       return state;
   }
 };
+
+
+
+export const itemsTotalValueReducer = (state = 0, action) => {
+
+  switch(action.type){
+    case "CART_TOTAL_VALUE":
+      return action.payload;
+    default:
+      return state;
+  }
+
+}

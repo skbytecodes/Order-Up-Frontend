@@ -10,8 +10,9 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
-import { addItem, removeItem } from "./actions/swiggyActions";
+import { addItem, cartTotalValue, removeItem } from "./actions/swiggyActions";
 import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
+import { Link } from "react-router-dom";
 
 function RestaurantItems() {
   const [items, setItems] = useState([]);
@@ -23,6 +24,8 @@ function RestaurantItems() {
   const cartItems = useSelector((state) => state.cartItems.items);
   console.log("cartitems are ", cartItems);
   const [cartItemsState, setCartItemsState] = useState(cartItems);
+ 
+  let itemsTotalAmount = useSelector((state) => state.totalItemsAmount);
   console.log("cartItemsState ", cartItemsState);
 
   useEffect(() => {
@@ -32,18 +35,32 @@ function RestaurantItems() {
       );
       setItems(response.data);
     }
-
     fetchSelectedItem();
-  }, [cartItemsState]);
-
-  const pushItem = (item) => {
-    dispatch(addItem({ foodId: item.food_id, count: 1 }));
     setCartItemsState(cartItems);
+  }, [cartItems]);
+
+  const pushItem = async (item) => {
+    dispatch(addItem({ foodId: item.food_id, count: 1 }));
+    const response = await axios.get(
+      `${parentUrl}/api/v1/foodById/${item.food_id}`
+    );
+    itemsTotalAmount = itemsTotalAmount + response.data.foodPrice;
+    dispatch(cartTotalValue(itemsTotalAmount));
+    // setCartItemsState(cartItems);
   };
 
-  const pullItem = (item) => {
+  const pullItem =async (item) => {
     dispatch(removeItem({ foodId: item.food_id }));
-    setCartItemsState(cartItems);
+    const response = await axios.get(
+      `${parentUrl}/api/v1/foodById/${item.food_id}`
+    );
+    itemsTotalAmount = itemsTotalAmount - response.data.foodPrice;
+    if(itemsTotalAmount <= 0){
+      dispatch(cartTotalValue(0));
+    }else{
+      dispatch(cartTotalValue(itemsTotalAmount));
+    }
+    // setCartItemsState(cartItems);
   };
 
   return (
@@ -131,7 +148,7 @@ function RestaurantItems() {
                   style={{ fontSize: "13px" }}
                   className="flex justify-start items-center space-x-2"
                 >
-                  <p className="font-semibold">&#8377; {item.food_price}</p>{" "}
+                  <p className="font-semibold">&#8377; {item.food_price.toFixed(2)}</p>{" "}
                   <span
                     className="px-1"
                     style={{
@@ -245,6 +262,7 @@ function RestaurantItems() {
           </div>
         </div>
       </div>
+      <Link to="/cart">
       <div
         className="h-10 m-auto sticky bottom-1 flex items-center justify-between px-3 font-bold hover:cursor-pointer"
         style={{
@@ -256,11 +274,12 @@ function RestaurantItems() {
           color: "white",
         }}
       >
-        <div>3 items | &#8377;89</div>
+        <div>2 items | &#8377;{itemsTotalAmount.toFixed(2)}</div>
         <div className="flex items-center justify-center space-x-1">
           <p className="mt-1 ">VIEW CART</p> <ShoppingBagOutlinedIcon />
         </div>
       </div>
+      </Link>
     </div>
   );
 }
