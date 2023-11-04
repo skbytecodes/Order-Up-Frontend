@@ -313,7 +313,17 @@ function Cart() {
                       className=" text-gray-500 flex"
                       style={{ fontSize: "12px" }}
                     >
-                      &#8377;<p>{item.foodPrice}</p>
+                      &#8377;
+                      {/* <p>{item.foodPrice}</p> */}
+                      {itemsInCartState.findIndex(
+                          (foo) => foo.foodId === item.foodId
+                        ) !== -1 ? (
+                          <p id={item.foodId}>
+                            {(itemsInCartState.find((foo) => foo.foodId === item.foodId).count*item.foodPrice).toFixed(2)}
+                          </p>
+                        ) : (
+                          <p id={item.food_id}>0.00</p>
+                        )}
                     </div>
                   </div>
                 ))}
@@ -333,31 +343,31 @@ function Cart() {
                   <div className="flex items-center justify-between px-5">
                     <p>Item Total</p>
                     <div className="flex">
-                      &#8377;<p>89</p>
+                      &#8377;<p>0.00</p>
                     </div>
                   </div>
                   <div className="flex items-center justify-between px-5">
                     <p>Delivery Fee | 5.8 kms</p>
                     <div className="flex">
-                      &#8377;<p>89</p>
+                      &#8377;<p>0.00</p>
                     </div>
                   </div>
                   <div className=" flex items-center justify-between px-5">
                     <p>Delivery Tip</p>
                     <div className="flex">
-                      &#8377;<p>89</p>
+                      &#8377;<p>0.00</p>
                     </div>
                   </div>
                   <div className="flex items-center justify-between px-5">
                     <p>Platform fee</p>
                     <div className="flex">
-                      &#8377;<p>89</p>
+                      &#8377;<p>0.00</p>
                     </div>
                   </div>
                   <div className="flex items-center justify-between px-5">
                     <p>GST and Restaurant Charges</p>
                     <div className=" flex">
-                      &#8377;<p>89</p>
+                      &#8377;<p>0.00</p>
                     </div>
                   </div>
                 </div>
