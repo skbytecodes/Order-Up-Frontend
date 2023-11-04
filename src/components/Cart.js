@@ -15,6 +15,7 @@ import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { menuItemClasses } from "@mui/material";
 import { addItem, cartTotalValue, removeItem } from "./actions/swiggyActions";
+import Logo from "../images/swiggy-logo.png";
 
 function Cart() {
   const [items, setItems] = useState([]);
@@ -73,6 +74,82 @@ function Cart() {
       dispatch(cartTotalValue(itemsTotalAmount));
     }
   };
+
+
+//payment
+
+function loadScript(src) {
+  return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = src;
+      script.onload = () => {
+          resolve(true);
+      };
+      script.onerror = () => {
+          resolve(false);
+      };
+      document.body.appendChild(script);
+  });
+}
+
+async function displayRazorpay() {
+  const res = await loadScript(
+      "https://checkout.razorpay.com/v1/checkout.js"
+  );
+
+  if (!res) {
+      alert("Razorpay SDK failed to load. Are you online?");
+      return;
+  }
+  const data = { 
+    "amount" : itemsTotalAmount.toFixed(2)
+  }
+  const result = await axios.post(parentUrl+"/api/v1/payment/createOrder",data);
+  if (!result) {
+      alert("Server error. Are you online?");
+      return;
+  }
+
+  const { amount, id: order_id, currency } = result.data;
+
+  const options = {
+      key: "rzp_test_ZEjXTEe2VFxVYo", // Enter the Key ID generated from the Dashboard
+      amount: amount.toString(),
+      currency: currency,
+      name: "Skbytecodes Pvt Ltd",
+      description: "Test Transaction",
+      image: { Logo },
+      order_id: order_id,
+      handler: async function (response) {
+          const data = {
+              orderCreationId: order_id,
+              razorpayPaymentId: response.razorpay_payment_id,
+              razorpayOrderId: response.razorpay_order_id,
+              razorpaySignature: response.razorpay_signature,
+          };
+
+          const result = await axios.post(parentUrl+"/api/v1/payment/success", data);
+
+          alert(result.data);
+      },
+      prefill: {
+          name: "Soumya Dey",
+          email: "SoumyaDey@example.com",
+          contact: "9582364692",
+      },
+      notes: {
+          address: "Soumya Dey Corporate Office",
+      },
+      theme: {
+          color: "#61dafb",
+      },
+  };
+
+  const paymentObject = new window.Razorpay(options);
+  paymentObject.open();
+}
+
+//
 
   return (
     <>
@@ -164,8 +241,8 @@ function Cart() {
             <div>
               <img src={Roll} className="h-32" />
             </div>
-            <div className="absolute top-30 left-5 bg-gray-600 p-2">
-              <UserIcon height={26} style={{ color: "white" }} />
+            <div className="absolute left-5 bg-gray-600 p-2">
+              <UserIcon height={26} style={{top: "300px", color: "white" }} />
             </div>
           </div>
 
@@ -178,7 +255,7 @@ function Cart() {
 
           <div
             className="absolute left-5 bg-gray-600 p-2"
-            style={{ top: "463px", color: "white" }}
+            style={{ top: "430px", color: "white" }}
           >
             <RoomOutlinedIcon />
           </div>
@@ -192,11 +269,19 @@ function Cart() {
 
           <div
             className="absolute left-5 bg-gray-600 p-2"
-            style={{ top: "568px", color: "white" }}
+            style={{ top: "520px", color: "white" }}
           >
             <Wallet />
           </div>
+
+          <div className=" text-white text-lg h-10 font-bold flex items-center justify-center hover:cursor-default"
+          style={{ backgroundColor: "#60b246" }}
+          onClick={displayRazorpay}
+          >
+            <p>Proceed To Payment</p>
+          </div>
         </div>
+        
 
         {/* cart section */}
 
@@ -314,7 +399,6 @@ function Cart() {
                       style={{ fontSize: "12px" }}
                     >
                       &#8377;
-                      {/* <p>{item.foodPrice}</p> */}
                       {itemsInCartState.findIndex(
                           (foo) => foo.foodId === item.foodId
                         ) !== -1 ? (
