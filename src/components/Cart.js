@@ -16,6 +16,8 @@ import axios from "axios";
 import { menuItemClasses } from "@mui/material";
 import { addItem, cartTotalValue, removeItem } from "./actions/swiggyActions";
 import Logo from "../images/swiggy-logo.png";
+import { redirect } from "react-router-dom";
+
 
 function Cart() {
   const [items, setItems] = useState([]);
@@ -31,7 +33,7 @@ function Cart() {
   const [restaurant, setRestaurant] = useState({});
   console.log("items in cart state ", itemsInCartState);
   let arr = [];
-
+  
   useEffect(() => {
     async function fetchData() {
       const restaurantResponse = await axios.get(
@@ -76,7 +78,7 @@ function Cart() {
   };
 
 
-//payment
+// payment
 
 function loadScript(src) {
   return new Promise((resolve) => {
@@ -104,7 +106,9 @@ async function displayRazorpay() {
   const data = { 
     "amount" : itemsTotalAmount.toFixed(2)
   }
+
   const result = await axios.post(parentUrl+"/api/v1/payment/createOrder",data);
+
   if (!result) {
       alert("Server error. Are you online?");
       return;
@@ -116,7 +120,7 @@ async function displayRazorpay() {
       key: "rzp_test_ZEjXTEe2VFxVYo", // Enter the Key ID generated from the Dashboard
       amount: amount.toString(),
       currency: currency,
-      name: "Skbytecodes Pvt Ltd",
+      name: "Sushil Info Technology",
       description: "Test Transaction",
       image: { Logo },
       order_id: order_id,
@@ -129,11 +133,15 @@ async function displayRazorpay() {
           };
 
           const result = await axios.post(parentUrl+"/api/v1/payment/success", data);
-
-          alert(result.data);
+          if(result.data  == 'Success'){
+            window.location.href = "/";
+          }else{
+            window.location.href = "/error";
+          }
+          
       },
       prefill: {
-          name: "Soumya Dey",
+          name: "Sujeet Devi",
           email: "SoumyaDey@example.com",
           contact: "9582364692",
       },
