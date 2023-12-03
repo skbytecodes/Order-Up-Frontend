@@ -17,10 +17,12 @@ import { menuItemClasses } from "@mui/material";
 import { addItem, cartTotalValue, removeItem } from "./actions/swiggyActions";
 import Logo from "../images/swiggy-logo.png";
 import { redirect } from "react-router-dom";
-
+import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
+import FmdGoodOutlinedIcon from '@mui/icons-material/FmdGoodOutlined';
 
 function Cart() {
   const [items, setItems] = useState([]);
+  const [auth, setAuth] = useState();
   const parentUrl = window.globalPrentUrl;
   const publicImagePath = window.publicImagePath;
 
@@ -33,12 +35,18 @@ function Cart() {
   const [restaurant, setRestaurant] = useState({});
   console.log("items in cart state ", itemsInCartState);
   let arr = [];
-  
+
   useEffect(() => {
     async function fetchData() {
       const restaurantResponse = await axios.get(
         `${parentUrl}/api/v1/restaurant/${selectedRestaurant}`
       );
+
+      const authRes = await axios.get(
+        `${parentUrl}/api/v1/login`
+      );
+      console.log("auth response ",authRes)
+      setAuth(authRes.data);
       setRestaurant(restaurantResponse.data);
 
       const promises = itemsInCartState.map(async (item) => {
@@ -55,7 +63,7 @@ function Cart() {
   }, [items]);
 
   const pushItem = async (item) => {
-    debugger
+    debugger;
     dispatch(addItem({ foodId: item.foodId, count: 1 }));
     const response = await axios.get(
       `${parentUrl}/api/v1/foodById/${item.foodId}`
@@ -77,46 +85,48 @@ function Cart() {
     }
   };
 
+  // payment
 
-// payment
-
-function loadScript(src) {
-  return new Promise((resolve) => {
+  function loadScript(src) {
+    return new Promise((resolve) => {
       const script = document.createElement("script");
       script.src = src;
       script.onload = () => {
-          resolve(true);
+        resolve(true);
       };
       script.onerror = () => {
-          resolve(false);
+        resolve(false);
       };
       document.body.appendChild(script);
-  });
-}
+    });
+  }
 
-async function displayRazorpay() {
-  const res = await loadScript(
+  async function displayRazorpay() {
+    const res = await loadScript(
       "https://checkout.razorpay.com/v1/checkout.js"
-  );
+    );
 
-  if (!res) {
+    if (!res) {
       alert("Razorpay SDK failed to load. Are you online?");
       return;
-  }
-  const data = { 
-    "amount" : itemsTotalAmount.toFixed(2)
-  }
+    }
+    const data = {
+      amount: itemsTotalAmount.toFixed(2),
+    };
 
-  const result = await axios.post(parentUrl+"/api/v1/payment/createOrder",data);
+    const result = await axios.post(
+      parentUrl + "/api/v1/payment/createOrder",
+      data
+    );
 
-  if (!result) {
+    if (!result) {
       alert("Server error. Are you online?");
       return;
-  }
+    }
 
-  const { amount, id: order_id, currency } = result.data;
+    const { amount, id: order_id, currency } = result.data;
 
-  const options = {
+    const options = {
       key: "rzp_test_ZEjXTEe2VFxVYo", // Enter the Key ID generated from the Dashboard
       amount: amount.toString(),
       currency: currency,
@@ -125,39 +135,41 @@ async function displayRazorpay() {
       image: { Logo },
       order_id: order_id,
       handler: async function (response) {
-          const data = {
-              orderCreationId: order_id,
-              razorpayPaymentId: response.razorpay_payment_id,
-              razorpayOrderId: response.razorpay_order_id,
-              razorpaySignature: response.razorpay_signature,
-          };
+        const data = {
+          orderCreationId: order_id,
+          razorpayPaymentId: response.razorpay_payment_id,
+          razorpayOrderId: response.razorpay_order_id,
+          razorpaySignature: response.razorpay_signature,
+        };
 
-          const result = await axios.post(parentUrl+"/api/v1/payment/success", data);
-          if(result.data  == 'Success'){
-            window.location.href = "/";
-          }else{
-            window.location.href = "/error";
-          }
-          
+        const result = await axios.post(
+          parentUrl + "/api/v1/payment/success",
+          data
+        );
+        if (result.data == "Success") {
+          window.location.href = "/";
+        } else {
+          window.location.href = "/error";
+        }
       },
       prefill: {
-          name: "Sujeet Devi",
-          email: "SoumyaDey@example.com",
-          contact: "9582364692",
+        name: "Sujeet Devi",
+        email: "SoumyaDey@example.com",
+        contact: "9582364692",
       },
       notes: {
-          address: "Soumya Dey Corporate Office",
+        address: "Soumya Dey Corporate Office",
       },
       theme: {
-          color: "#61dafb",
+        color: "#61dafb",
       },
-  };
+    };
 
-  const paymentObject = new window.Razorpay(options);
-  paymentObject.open();
-}
+    const paymentObject = new window.Razorpay(options);
+    paymentObject.open();
+  }
 
-//
+  //
 
   return (
     <>
@@ -187,27 +199,34 @@ async function displayRazorpay() {
 
       <div
         className="bg-gray-200 relative flex justify-around"
-        style={{ minHeight: "140vh", paddingTop: "5vh" }}
+        // style={{ minHeight: "140vh", paddingTop: "5vh" }}
+        style={{minHeight: "180vh", paddingTop: "5vh" }}
       >
         <div
           className="flex flex-col justify-between"
-          style={{ height: "100vh", width: "63vw" }}
+          style={{ height: "80vh", width: "63vw" }}
+          // style={{ width: "63vw" }}
         >
-          <div
-            className="bg-white flex flex-col justify-evenly pl-10 ml-5"
-            style={{ height: "27vh" }}
-          >
-            <p className="font-semibold text-lg">
-              Oops, something went wrong. Please clear your cart and try again.
-            </p>
-            <p className="bg-orange-500 text-white font-semibold w-fit px-5 py-2">
-              RETRY
-            </p>
-          </div>
-          <div className="absolute top-20 left-5 bg-gray-600 p-2">
-            <ReplayOutlinedIcon sx={{ color: "white" }} />
-          </div>
+          {navigator.onLine ? (
+            ""
+          ) : (
+            <>
+              <div
+                className="bg-white flex flex-col justify-evenly pl-10 ml-5"
+                style={{ height: "27vh" }}
+              >
+                <p className="font-semibold text-lg">
+                  Oops, something went wrong. Please clear your cart and try
+                  again.
+                </p>
+                <p className="bg-orange-500 text-white font-semibold w-fit px-5 py-2">
+                  RETRY
+                </p>
+              </div>
+            </>
 
+          )}
+          {auth != true ? (<>
           <div
             className="bg-white flex justify-around items-center ml-5"
             style={{ height: "32vh" }}
@@ -218,7 +237,7 @@ async function displayRazorpay() {
             >
               <div>
                 <p className="font-bold">Account</p>
-                <p className="text-gray-400">
+                <p className="text-gray-400" style={{ fontSize: "13px" }}>
                   To place your order now, log in to your existing account or
                   sign up.
                 </p>
@@ -249,47 +268,62 @@ async function displayRazorpay() {
             <div>
               <img src={Roll} className="h-32" />
             </div>
-            <div className="absolute left-5 bg-gray-600 p-2">
-              <UserIcon height={26} style={{top: "300px", color: "white" }} />
+          </div>
+          </>)
+          :(<div className="h-96 bg-white ml-5 flex flex-col justify-evenly">
+            <div className="ml-8">
+              <p className="text-neutral-900 font-bold">Select delivery address</p>
+              <p className="text-gray-400">You have a saved address in this location</p>
+            </div>
+
+            <div className="flex justify-around">
+              <div className=" flex w-5/12 h-52 justify-evenly py-5  border gray-red-900">
+                <HomeOutlinedIcon/>
+                <div className="w-5/6 ">
+                  <p>Home</p>
+                  <p className="text-gray-400 text-xs mt-2">F1 194 4th Floor Madangir, South Delhi, Block F1, Doctor Ambedkar Nagar, Madangir, New Delhi, Delhi 110062, India</p>
+
+                  <p className="mt-5 mb-2" style={{fontSize:"12px", fontWeight:"bold"}}>23 MINS</p>
+                  <p className=" text-white w-fit px-2 py-1 hover:cursor-pointer"  style={{ backgroundColor: "#60b246", fontSize:"14px"}}>Deliver Here</p>
+                </div>
+              </div>
+              <div className=" flex w-5/12 h-52 justify-evenly py-5 border gray-red-900">
+                <FmdGoodOutlinedIcon />
+                <div className="w-5/6">
+                  <p>Add New Address</p>
+                  <p className="text-gray-400 text-xs mt-2">F1/235, Block F1, Doctor Ambedkar Nagar, Madangir, New Delhi, Delhi 110062, India</p>
+                  <p className=" text-white w-fit px-4 py-1 mt-7 hover:cursor-pointer"  style={{ border: "1px solid #60b246",fontSize:"13px", color:"#60b246" }}>ADD NEW</p>
+                </div>
+              </div>
             </div>
           </div>
+        )}
 
+        {auth == true ? "" : (<>
           <div
             className="bg-white flex items-center p-9 ml-5"
             style={{ height: "10vh" }}
           >
             <p className="font-bold text-gray-400">Delivery address</p>
           </div>
-
-          <div
-            className="absolute left-5 bg-gray-600 p-2"
-            style={{ top: "430px", color: "white" }}
-          >
-            <RoomOutlinedIcon />
-          </div>
-
+          </>)}
           <div
             className="bg-white flex items-center p-9 ml-5"
             style={{ height: "10vh" }}
           >
-            <p className="font-bold text-gray-400">Payment</p>
+            {auth != true ? <p className="font-bold text-gray-400">Payment</p> :
+            <p className="font-bold text-gray-400 text-center"
+            onClick={displayRazorpay}>Proceed To Payment</p>}
           </div>
-
-          <div
-            className="absolute left-5 bg-gray-600 p-2"
-            style={{ top: "520px", color: "white" }}
-          >
-            <Wallet />
-          </div>
-
-          <div className=" text-white text-lg h-10 font-bold flex items-center justify-center hover:cursor-default"
-          style={{ backgroundColor: "#60b246" }}
-          onClick={displayRazorpay}
+         
+          {/* <div
+            className=" text-white text-lg h-10 font-bold ml-5 flex items-center justify-center hover:cursor-default"
+            style={{ backgroundColor: "#60b246" }}
+            onClick={displayRazorpay}
           >
             <p>Proceed To Payment</p>
-          </div>
+          </div> */}
         </div>
-        
 
         {/* cart section */}
 
@@ -408,14 +442,18 @@ async function displayRazorpay() {
                     >
                       &#8377;
                       {itemsInCartState.findIndex(
-                          (foo) => foo.foodId === item.foodId
-                        ) !== -1 ? (
-                          <p id={item.foodId}>
-                            {(itemsInCartState.find((foo) => foo.foodId === item.foodId).count*item.foodPrice).toFixed(2)}
-                          </p>
-                        ) : (
-                          <p id={item.food_id}>0.00</p>
-                        )}
+                        (foo) => foo.foodId === item.foodId
+                      ) !== -1 ? (
+                        <p id={item.foodId}>
+                          {(
+                            itemsInCartState.find(
+                              (foo) => foo.foodId === item.foodId
+                            ).count * item.foodPrice
+                          ).toFixed(2)}
+                        </p>
+                      ) : (
+                        <p id={item.food_id}>0.00</p>
+                      )}
                     </div>
                   </div>
                 ))}
